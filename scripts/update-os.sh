@@ -39,6 +39,8 @@ done
 aCheckDep buildah
 aCheckVar image
 
+: "${tag:=}"
+
 trap "aBuildahClean" EXIT
 c="$(aBuildahFrom \
     --name "aosc-os-update-$(aRandom)" \

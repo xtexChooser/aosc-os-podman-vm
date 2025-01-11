@@ -10,19 +10,34 @@ jobs:
         variant: [base, buildkit]
         arch: [amd64]
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y bash jq podman buildah aria2
-      - uses: actions/checkout@v2
+        run: sudo apt-get update && sudo apt-get install -y bash jq podman buildah aria2 libguestfs-tools
+      - name: Checkout sources
+        uses: actions/checkout@v2
 
       - name: Resolve tarball
-        run: scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }}
+        run: sudo scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }}
       - name: Download tarball
         run:
-          scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }} |
-          scripts/download-tarball.sh -o system.tar.xz
+          sudo scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }} |
+          sudo scripts/download-tarball.sh -o system.tar.xz
+      # FIXME: buildah add does not work with tar.xz on GH Actions
+      - name: Extract tarball
+        run: sudo xz -d system.tar.xz
       - name: Create base image
         run:
-          scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }} |
-          scripts/create-base-image.sh -f system.tar.xz -t localhost/aosc-os
+          sudo scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }} |
+          sudo scripts/create-base-image.sh -f system.tar -t localhost/aosc-os;
+          sudo rm -vf system.tar.xz system.tar
       - name: Update system
-        run: scripts/update-os.sh -i localhost/aosc-os -t localhost/aosc-os-updated
+        run:
+          sudo scripts/update-os.sh -i localhost/aosc-os -t localhost/aosc-os-updated;
+          sudo podman image rm localhost/aosc-os
+      - name: Convert to QCOW2
+        run:
+          sudo scripts/oci-to-qcow.sh -i localhost/aosc-os-updated -o system.qcow2;
+          sudo podman image rm localhost/aosc-os-updated

@@ -1,3 +1,5 @@
 *.tar
 *.zst
 *.tar.xz
+*.qcow
+*.qcow2

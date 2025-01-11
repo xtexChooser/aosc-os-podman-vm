@@ -42,6 +42,7 @@ done
 aCheckDep jq buildah
 aCheckVar tarball
 
+: "${tag:=}"
 tarballJson="$(cat)"
 variant="$(ajqRaw '.variant' <<<"$tarballJson")"
 arch="$(ajqRaw '.arch' <<<"$tarballJson")"
