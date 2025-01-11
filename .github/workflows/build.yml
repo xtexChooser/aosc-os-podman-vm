@@ -1,0 +1,28 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant: [base, buildkit]
+        arch: [amd64]
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y bash jq podman buildah aria2
+      - uses: actions/checkout@v2
+
+      - name: Resolve tarball
+        run: scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }}
+      - name: Download tarball
+        run:
+          scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }} | \
+          scripts/download-tarball.sh -o system.tar.xz
+      - name: Create base image
+        run:
+          scripts/find-tarball.sh --variant ${{ matrix.variant }} --arch ${{ matrix.arch }} | \
+          scripts/create-base-image.sh -f system.tar.xz -t localhost/aosc-os
+      - name: Update system
+        run: scripts/update-os.sh -i localhost/aosc-os -t localhost/aosc-os-updated
