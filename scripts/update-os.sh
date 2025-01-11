@@ -11,6 +11,7 @@ Update the given image.
 Options:
     -v --verbose            Verbose logging
     -i --image              OCI Image
+    -t --tag                Tag
 EOF
     exit 1
 fi
@@ -23,6 +24,10 @@ while [ $# -ne 0 ]; do
         ;;
     -i | --image)
         image="$2"
+        shift 2
+        ;;
+    -t | --tag)
+        tag="$2"
         shift 2
         ;;
     *)
@@ -55,4 +60,10 @@ ainfo "Running oma clean ..."
 time buildah run "$c" oma clean --no-progress
 
 ainfo "Committing image ..."
-buildah commit "$c"
+image="$(buildah commit "$c")"
+echo -n "$image"
+
+if [[ -n "$tag" ]]; then
+    ainfo "Tagging image ..."
+    buildah tag "$image" "$tag"
+fi
