@@ -11,6 +11,7 @@ Create a OCI image for the given tarball.
 Options:
     -v --verbose            Verbose logging
     -f --tarball            Tarball
+    -t --tag                Tag
 
 Input:
     Output from find-tarball.sh
@@ -26,6 +27,10 @@ while [ $# -ne 0 ]; do
         ;;
     -f | --tarball)
         tarball="$2"
+        shift 2
+        ;;
+    -t | --tag)
+        tag="$2"
         shift 2
         ;;
     *)
@@ -71,4 +76,10 @@ ainfo "Adding contents from tarball ..."
 time buildah add "$c" "$tarball" /
 
 ainfo "Committing image ..."
-buildah commit "$c"
+image="$(buildah commit "$c")"
+echo -n "$image"
+
+if [[ -n "$tag" ]]; then
+    ainfo "Tagging image ..."
+    buildah tag "$image" "$tag"
+fi
