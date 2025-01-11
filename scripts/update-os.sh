@@ -53,7 +53,7 @@ buildah config \
 ainfo "Running oma upgrade ..."
 # Fallback on older images, where oma does not support --force-unsafe-io
 time buildah run "$c" /usr/bin/oma upgrade -y --force-confnew --no-progress --force-unsafe-io --no-check-dbus ||
-    time buildah run "$c" oma upgrade -y --force-confnew --no-progress --no-check-dbus
+    time buildah run "$c" /usr/bin/oma upgrade -y --force-confnew --no-progress --no-check-dbus
 ainfo "Running oma autoremove ..."
 time buildah run "$c" /usr/bin/oma autoremove -y --no-progress --remove-config
 ainfo "Running oma clean ..."
