@@ -67,6 +67,7 @@ buildah config \
     --env AOSC_CONTAINER_VARIANT="$variant" \
     --env AOSC_CONTAINER_ARCH="$arch" \
     --env AOSC_CONTAINER_DATE="$date" \
+    --env PATH="/usr/bin:/usr/local/bin" \
     --os linux \
     --cmd '[ "/usr/bin/bash" ]' \
     --workingdir / \
