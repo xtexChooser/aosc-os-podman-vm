@@ -67,6 +67,10 @@ aSha256() {
     sha256sum "$1" | cut -d ' ' -f1
 }
 
+aRandom() {
+    head -c256 /dev/urandom | sha256sum - | head -c16
+}
+
 declare -a aBuildahContainers
 
 aBuildahClean() {
